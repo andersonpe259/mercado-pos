@@ -1,0 +1,140 @@
+openapi: '3.0.1'
+info:
+  title: SuperMarket estoque
+  description: Aplicação de controle de estoque de um supermercado.
+    O SuperMarket Estoque permite que o usuário adicione(POST), veja(GET), edite(PUT) e apague(delete) produtos do seu estoque.
+    Para adicionar um produto é necessário cadastrar o seu nome, marca, preço e descrição.
+  version: '1.1'
+servers:
+  - url: http://{host}:{porta}/api
+    variables:
+      host:
+        default: localhost
+      porta:
+        default: '8000'
+
+paths:
+  /produtos:
+    get:
+      operationId: getProdutos
+      summary: Acessar produtos.
+      responses:
+        '200':
+          description: OK
+          content: 
+            application/json:
+              schema:
+                type: array
+                minItems: 0
+                items:
+                  $ref: '#/components/schemas/produto'
+    
+    post:
+      summary: Adicionar Produto
+      operationId: postProdutos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  $ref: '#/components/schemas/produto/properties/nome'
+                marca:
+                  $ref: '#/components/schemas/produto/properties/marca'
+                preco:
+                  $ref: '#/components/schemas/produto/properties/preco'
+                descricao:
+                  $ref: '#/components/schemas/produto/properties/descricao'
+      responses:
+        201:
+          description: Produto Adicionado
+
+  /produtos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/produto/properties/id'
+  
+    get:
+      operationId: getProduto
+      summary: Acessar Produto
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/Produto'
+        404:
+          description: Produto não encontrada.
+
+    put:
+      summary: Alterar Produto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                autor:
+                  nome:
+                  $ref: '#/components/schemas/produto/properties/nome'
+                marca:
+                  $ref: '#/components/schemas/produto/properties/marca'
+                preco:
+                  $ref: '#/components/schemas/produto/properties/preco'
+                descricao:
+                  $ref: '#/components/schemas/produto/properties/descricao'
+      responses:
+        200:
+          description: OK
+        404:
+          description: Produto não encontrada.
+
+    delete:
+      summary: Apagar produto
+      responses:
+        200:
+          description: OK
+        404:
+          description: Produto não encontrada.
+
+
+components:
+  schemas:  
+    produto:
+      type: object
+      description: Um produto.
+      properties:
+        id:
+          type: string
+          description: Um id gerado automaticamente pelo sistema.
+          example: 123
+        nome:
+          type: string
+          description: Nome do produto.
+          example: feijão
+        marca:
+          type: string
+          description: Marca do produto.
+          example: camil
+        preco:
+          type: number
+          example: 6.55
+        descricao:
+          type: string
+          description: Fazer a descrição de um produto.
+          example: Feijão Carioca de 2kg
+
+    msg:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum: [info, erro]
+        conteudo:
+          type: string
