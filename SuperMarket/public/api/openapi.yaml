@@ -80,8 +80,7 @@ paths:
             schema:
               type: object
               properties:
-                autor:
-                  nome:
+                nome:
                   $ref: '#/components/schemas/produto/properties/nome'
                 marca:
                   $ref: '#/components/schemas/produto/properties/marca'

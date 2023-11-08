@@ -84,18 +84,19 @@ Route::put('produtos/{id}',
         ]);
         $produto = Supermarket::find($id);
         
-        // $produto->update([
-        //     'nome' => $request->nome,
-        //     'marca' => $request->marca,
-        //     'preco' => $request->preco,
-        //     'descricao' => $request->descricao,
-        // ]);
-        $produto->nome = $request->nome;
-        $produto->marca = $request->marca;
-        $produto->preco = $request->preco;
-        $produto->descricao = $request->descricao;
-        $produto->save();
-        return response()->json(
+        $produto->update([
+            'nome' => $request->nome,
+            'marca' => $request->marca,
+            'preco' => $request->preco,
+            'descricao' => $request->descricao,
+        ]);
+        
+        // $produto->nome = $request->nome;
+        // $produto->marca = $request->marca;
+        // $produto->preco = $request->preco;
+        // $produto->descricao = $request->descricao;
+        // $produto->save();
+        return response()->json([$produto],
             200
         );
     }
