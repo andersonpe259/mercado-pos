@@ -31,6 +31,8 @@ paths:
     
     post:
       summary: Adicionar Produto
+      security:
+        - bearer: []
       operationId: postProdutos
       requestBody:
         required: true
@@ -74,6 +76,8 @@ paths:
 
     put:
       summary: Alterar Produto
+      security:
+        - bearer: []
       requestBody:
         content:
           application/json:
@@ -96,6 +100,8 @@ paths:
 
     delete:
       summary: Apagar produto
+      security:
+        - bearer: []
       responses:
         200:
           description: OK
@@ -137,3 +143,9 @@ components:
           enum: [info, erro]
         conteudo:
           type: string
+    
+  securitySchemes:
+    bearer: # Apelido para o esquema de segurança
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

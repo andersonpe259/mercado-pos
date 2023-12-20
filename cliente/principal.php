@@ -11,6 +11,7 @@ const OP_SAIR = 'Sair';
 const OP_CANCELAR = 'Cancelar';
 const OP_ADICIONAR = 'Adicionar produto';
 const OP_EXCLUIR = 'Excluir produto';
+const OP_EXIBIR_USUARIO = 'Exibir meus dados pessoais';
 
 const OP_INVALIDA = 'Operação inválida';
 
@@ -22,7 +23,7 @@ const OP_INVALIDA = 'Operação inválida';
  * Interface CLI para o supermarket.
  */
 class InterfaceSupermarket {
-
+    private array $usuario = [];
     /**
      * @param ClienteSupermarket cliente_supermarket - Cliente da API do supermarket.
      * @param string temp_msg - Uma mensagem temporária a ser exibida uma vez.
@@ -37,13 +38,16 @@ class InterfaceSupermarket {
      * Exibe o menu principal em loop.
      */
     public function menuPrincipal() {
+        $this->menuLogin();
         do {
             $this->limparTela();
 
             $this->exibirTitulo();
-        
-            $produtos = $this->cliente_supermarket->getProdutos();
+
+            $this->exibirUsuario();
             
+            
+            $produtos = $this->cliente_supermarket->getProdutos();
             $this->exibirProdutos($produtos);
         
             $this->exibirMensagemTemporaria();
@@ -57,13 +61,17 @@ class InterfaceSupermarket {
                     break;
                 case OP_ADICIONAR:
                     $p = $this->menuAdicionarProduto();
-                    $this->cliente_supermarket->criarProduto($p);
-                    echo $p;
+                    $resposta = $this->cliente_supermarket->criarProduto($p);
+                   
+                    readline();
                     break;
                 case OP_EXCLUIR:
                     $id = $this->menuExcluirProduto();
                     $resposta = $this->cliente_supermarket->exluirProdutos($id);
                     $this->exibirErroNaResposta($resposta);
+                    break;
+                case OP_EXIBIR_USUARIO:
+                    $this->menuExibirUsuario();
                     break;
             }
         } while ($operacao != OP_SAIR);
@@ -98,6 +106,7 @@ class InterfaceSupermarket {
      * @param array produtos - lista de publicações.
      */
     public function exibirProdutos($produtos) {
+        
         foreach ($produtos as $p) {
             echo "
             \r#$p->id $p->nome | Marca: $p->created_at Preço: R$ $p->preco
@@ -116,6 +125,7 @@ class InterfaceSupermarket {
         $operacoes = [
             1 => OP_ADICIONAR,
             2 => OP_EXCLUIR,
+            3 => OP_EXIBIR_USUARIO,
             0 => OP_SAIR
         ];
         foreach ($operacoes as $i => $op) {
@@ -132,6 +142,33 @@ class InterfaceSupermarket {
         return $operacoes[$escolhida];
     }
 
+    private function menuLogin() {
+        $this->limparTela();
+        
+        $this->exibirTitulo();
+
+        echo "Faça login para começar.\n\n";
+
+        echo 'Matrícula: ';
+        $usuario = readline();
+
+        echo 'Senha: ';
+        $senha = Seld\CliPrompt\CliPrompt::hiddenPrompt();
+
+        $this->usuario = $this->cliente_supermarket->login($usuario, $senha);
+       
+    }
+
+    private function exibirUsuario() {
+        echo "{$this->usuario['nome']} ({$this->usuario['matricula']})\n";
+    }
+
+    public function menuExibirUsuario() {
+        echo "Nome: {$this->usuario['nome']}\n";
+        echo "Matrícula: {$this->usuario['matricula']}\n";
+        echo "Token SUAP: {$this->usuario['suap_token']}\n";
+        readline("Aperte ENTER para voltar");
+    }
 
     /**
      * Exibe menu para ler os dados de uma publicação a ser criada.
@@ -145,6 +182,7 @@ class InterfaceSupermarket {
         $p['preco'] = readline();
         echo "Escreva a descrição do produto:\n";
         $p['descricao'] = readline();
+
         return $p;
     }
 
@@ -194,6 +232,12 @@ class InterfaceSupermarket {
 /* PROGRAMA PRINCIPAL */
 
 
-$cliente_supermarket = new ClienteSupermarket('http://localhost:8000/api/');
+$cliente_supermarket = new ClienteSupermarket(
+    'http://localhost:8000/api/',
+    'https://suap.ifrn.edu.br/api/v2/'
+);
+
 $interface = new InterfaceSupermarket($cliente_supermarket);
+
 $interface->menuPrincipal();
+
